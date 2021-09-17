@@ -318,7 +318,6 @@ def init():
 		basicSetting.append(inputData[19][12:])    #basicSetting[15] : 입력 셀
 		basicSetting.append(inputData[20][13:])    #basicSetting[16] : 출력 셀
 		basicSetting.append(inputData[12][13:])     #basicSetting[17] : 멍삭제횟수
-		basicSetting.append(inputData[5][14:])     #basicSetting[18] : kill채널 ID
 		basicSetting.append(inputData[6][16:])     #basicSetting[19] : racing 채널 ID
 		basicSetting.append(inputData[7][14:])     #basicSetting[20] : item 채널 ID
 		basicSetting.append(inputData[21][12:])     #basicSetting[21] : voice_use
@@ -1318,12 +1317,7 @@ class mainCog(commands.Cog):
 				else:
 					basicSetting[11] = ""
 					print(f"정산채널 ID 오류! [{command[28][0]} 정산] 명령으로 재설정 바랍니다.")
-			if basicSetting[18] != "":
-				if str(basicSetting[18]) in channel_id:
-					print('< 척살채널 [' + ctx.guild.get_channel(int(basicSetting[18])).name + '] 접속완료>')
-				else:
-					basicSetting[18] = ""
-					print(f"척살채널 ID 오류! [{command[28][0]} 척살] 명령으로 재설정 바랍니다.")
+	
 			if basicSetting[19] != "":
 				if str(basicSetting[19]) in channel_id:
 					print('< 경주채널 [' + ctx.guild.get_channel(int(basicSetting[19])).name + '] 접속완료>')
@@ -1471,8 +1465,6 @@ class mainCog(commands.Cog):
 				setting_val += '사다리채널 : ' + self.bot.get_channel(int(basicSetting[8])).name + '\n'
 			if basicSetting[11] != "" :
 				setting_val += '정산채널 : ' + self.bot.get_channel(int(basicSetting[11])).name + '\n'
-			if basicSetting[18] != "" :
-				setting_val += '척살채널 : ' + self.bot.get_channel(int(basicSetting[18])).name + '\n'
 			if basicSetting[19] != "" :
 				setting_val += '경주채널 : ' + self.bot.get_channel(int(basicSetting[19])).name + '\n'
 			if basicSetting[20] != "" :
@@ -2702,127 +2694,9 @@ class mainCog(commands.Cog):
 		else:
 			return
 
-	################ 킬초기화 ################ 
-	@commands.command(name=command[24][0], aliases=command[24][1:])
-	async def killInit_(self, ctx):
-		if basicSetting[18] != "" and ctx.message.channel.id == basicSetting[7]:
-			return
+	
 
-		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[18]:
-			global kill_Data
-
-			kill_Data = {}
-			
-			await init_data_list('kill_list.ini', '-----척살명단-----')
-			return await ctx.send( '< 킬 목록 초기화완료 >', tts=False)
-		else:
-			return
-
-	################ 킬명단 확인 및 추가################ 
-	@commands.command(name=command[25][0], aliases=command[25][1:]) 
-	async def killList_(self, ctx, *, args : str = None):
-		if basicSetting[18] != "" and ctx.message.channel.id == basicSetting[7]:
-			return
-
-		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[18]:
-			global kill_Data
-
-			if not args:
-				kill_output = ''
-				for key, value in kill_Data.items():
-					kill_output += ':skull_crossbones: ' + str(key) + ' : ' + str(value) + '번 따히!\n'
-
-				if kill_output != '' :
-					embed = discord.Embed(
-							description= str(kill_output),
-							color=0xff00ff
-							)
-				else :
-					embed = discord.Embed(
-							description= '등록된 킬 목록이 없습니다. 분발하세요!',
-							color=0xff00ff
-							)
-				return await ctx.send(embed=embed, tts=False)
-
-			if args in kill_Data:
-				kill_Data[args] += 1
-			else:
-				kill_Data[args] = 1
-					
-			embed = discord.Embed(
-					description= ':skull_crossbones: ' + args + ' 따히! [' + str(kill_Data[args]) + '번]\n',
-					color=0xff00ff
-					)
-			return await ctx.send(embed=embed, tts=False)
-		else:
-			return
-
-	################ 킬삭제 ################ 
-	@commands.command(name=command[26][0], aliases=command[26][1:])
-	async def killDel_(self, ctx, *, args : str = None):
-		if basicSetting[18] != "" and ctx.message.channel.id == basicSetting[7]:
-			return
-
-		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[18]:
-			global kill_Data
-			
-			if not args:
-				return await ctx.send( '```제대로 된 아이디를 입력해주세요!\n```', tts=False)
-			
-			if args in kill_Data:
-				del kill_Data[args]
-				return await ctx.send( ':angel: ' + args + ' 삭제완료!', tts=False)
-			else :				
-				return await ctx.send( '```킬 목록에 등록되어 있지 않습니다!\n```', tts=False)
-		else:
-			return
-
-	################ 킬 차감 ################ 
-	@commands.command(name=command[33][0], aliases=command[33][1:]) 
-	async def killSubtract_(self, ctx, *, args : str = None):
-		if basicSetting[18] != "" and ctx.message.channel.id == basicSetting[7]:
-			return
-
-		if ctx.message.channel.id == basicSetting[7] or ctx.message.channel.id == basicSetting[18]:
-			global kill_Data
-
-			if not args:
-				return await ctx.send(f'{command[33][0]} [아이디] 혹은 {command[33][0]} [아이디] [횟수] 양식에 맞춰 입력해주세요!', tts = False)
-
-			input_data = args.split()
-			
-			if len(input_data) == 1:
-				kill_name = args
-				count = 1
-			elif len(input_data) == 2:
-				kill_name = input_data[0]
-				try:
-					count = int(input_data[1])
-				except ValueError:
-					return await ctx.send(f'[횟수]는 숫자로 입력바랍니다')
-			else:
-				return await ctx.send(f'{command[33][0]} [아이디] 혹은 {command[33][0]} [아이디] [횟수] 양식에 맞춰 입력해주세요!', tts = False)
-
-			if kill_name in kill_Data:
-				if kill_Data[kill_name] < int(count):
-					return await ctx.send( f"등록된 킬 횟수[{str(kill_Data[kill_name])}번]보다 차감 횟수[{str(count)}번]가 많습니다. 킬 횟수에 맞게 재입력 바랍니다.", tts=False)
-				else:
-					kill_Data[kill_name] -= int(count)
-			else:
-				return await ctx.send( '```킬 목록에 등록되어 있지 않습니다!\n```', tts=False)
-					
-			embed = discord.Embed(
-					description= f':angel: [{kill_name}] [{str(count)}번] 차감 완료! [잔여 : {str(kill_Data[kill_name])}번]\n',
-					color=0xff00ff
-					)
-			
-			if kill_Data[kill_name] == 0:
-				del kill_Data[kill_name]
-
-			return await ctx.send(embed=embed, tts=False)
-		else:
-			return
-
+	
 	################ 경주 ################ 
 	@commands.command(name=command[27][0], aliases=command[27][1:])
 	async def race_(self, ctx):
@@ -3013,23 +2887,7 @@ class mainCog(commands.Cog):
 
 			print(f'< 정산채널 [{ctx.message.channel.name}] 설정완료 >')
 			return await ctx.send(f'< 정산채널 [{ctx.message.channel.name}] 설정완료 >', tts=False)			
-		elif msg == '척살' :
-			inidata_textCH = repo.get_contents("test_setting.ini")
-			file_data_textCH = base64.b64decode(inidata_textCH.content)
-			file_data_textCH = file_data_textCH.decode('utf-8')
-			inputData_textCH = file_data_textCH.split('\n')
-			
-			for i in range(len(inputData_textCH)):
-				if inputData_textCH[i].startswith('killchannel'):
-					inputData_textCH[i] = 'killchannel = ' + str(channel) + '\r'
-					basicSetting[18] = channel
-			result_textCH = '\n'.join(inputData_textCH)
-
-			contents = repo.get_contents("test_setting.ini")
-			repo.update_file(contents.path, "test_setting", result_textCH, contents.sha)
-
-			print(f'< 척살채널 [{ctx.message.channel.name}] 설정완료 >')
-			return await ctx.send(f'< 척살채널 [{ctx.message.channel.name}] 설정완료 >', tts=False)
+		
 		elif msg == '경주' :
 			inidata_textCH = repo.get_contents("test_setting.ini")
 			file_data_textCH = base64.b64decode(inidata_textCH.content)
@@ -3111,23 +2969,7 @@ class mainCog(commands.Cog):
 
 			print(f'< 정산채널 [{ch_name}] 삭제완료 >')
 			return await ctx.send(f'< 정산채널 [{ch_name}] 삭제완료 >', tts=False)			
-		elif msg == '척살' :
-			inidata_textCH = repo.get_contents("test_setting.ini")
-			file_data_textCH = base64.b64decode(inidata_textCH.content)
-			file_data_textCH = file_data_textCH.decode('utf-8')
-			inputData_textCH = file_data_textCH.split('\n')
-			ch_name = ctx.guild.get_channel(int(basicSetting[18]))
-			for i in range(len(inputData_textCH)):
-				if inputData_textCH[i].startswith('killchannel'):
-					inputData_textCH[i] = 'killchannel = \r'
-					basicSetting[18] = ""
-			result_textCH = '\n'.join(inputData_textCH)
-
-			contents = repo.get_contents("test_setting.ini")
-			repo.update_file(contents.path, "test_setting", result_textCH, contents.sha)
-
-			print(f'< 척살채널 [{ch_name}] 삭제완료 >')
-			return await ctx.send(f'< 척살채널 [{ch_name}] 삭제완료 >', tts=False)
+		
 		elif msg == '경주' :
 			inidata_textCH = repo.get_contents("test_setting.ini")
 			file_data_textCH = base64.b64decode(inidata_textCH.content)
@@ -3944,12 +3786,7 @@ class IlsangDistributionBot(commands.AutoShardedBot):
 				else:
 					basicSetting[11] = ""
 					print(f"정산채널 ID 오류! [{command[28][0]} 정산] 명령으로 재설정 바랍니다.")
-			if basicSetting[18] != "":
-				if str(basicSetting[18]) in channel_id:
-					print('< 척살채널 [' + self.get_channel(int(basicSetting[18])).name + '] 접속완료>')
-				else:
-					basicSetting[18] = ""
-					print(f"척살채널 ID 오류! [{command[28][0]} 척살] 명령으로 재설정 바랍니다.")
+			
 			if basicSetting[19] != "":
 				if str(basicSetting[19]) in channel_id:
 					print('< 경주채널 [' + self.get_channel(int(basicSetting[19])).name + '] 접속완료>')
