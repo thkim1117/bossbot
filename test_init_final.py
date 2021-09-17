@@ -318,6 +318,9 @@ def init():
 		basicSetting.append(inputData[19][12:])    #basicSetting[15] : 입력 셀
 		basicSetting.append(inputData[20][13:])    #basicSetting[16] : 출력 셀
 		basicSetting.append(inputData[12][13:])     #basicSetting[17] : 멍삭제횟수
+		
+		logging.error(inputData[5][14:])
+		
 		basicSetting.append(inputData[5][14:])     #basicSetting[18] : kill채널 ID
 		basicSetting.append(inputData[6][16:])     #basicSetting[19] : racing 채널 ID
 		basicSetting.append(inputData[7][14:])     #basicSetting[20] : item 채널 ID
